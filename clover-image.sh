@@ -12,18 +12,18 @@ cfg=""
 # create work dir
 
 function msg() {
-	local txt="$1"
-	local bold="\x1b[1m"
-	local normal="\x1b[0m"
-	echo -e "${bold}### ${txt}${normal}"
+        local txt="$1"
+        local bold="\x1b[1m"
+        local normal="\x1b[0m"
+        echo -e "${bold}### ${txt}${normal}"
 }
 
 function do_cleanup() {
-	msg "cleaning up ..."
-	if test "$GUESTFISH_PID" != ""; then
-		guestfish --remote -- exit >/dev/null 2>&1 || true
-	fi
-	sudo rm -rf "$WORK"
+        msg "cleaning up ..."
+        if test "$GUESTFISH_PID" != ""; then
+                guestfish --remote -- exit >/dev/null 2>&1 || true
+        fi
+        sudo rm -rf "$WORK"
 }
 
 WORK="${TMPDIR-/var/tmp}/${0##*/}-$$"
@@ -46,66 +46,66 @@ EOF
 }
 
 while test "$1" != ""; do
-	case "$1" in
-	--iso)
-		iso="$2"
-		shift; shift
-		;;
-	--img)
-		img="$2"
-		shift; shift
-		;;
-	--cfg)
-		cfg="$2"
-		shift; shift
-		;;
-	esac
+        case "$1" in
+        --iso)
+                iso="$2"
+                shift; shift
+                ;;
+        --img)
+                img="$2"
+                shift; shift
+                ;;
+        --cfg)
+                cfg="$2"
+                shift; shift
+                ;;
+        esac
 done
 
 ######################################################################
 # guestfish script helpers
 
 function fish() {
-	echo "#" "$@"
-	guestfish --remote -- "$@"		|| exit 1
+        echo "#" "$@"
+        guestfish --remote -- "$@"		|| exit 1
 }
 
 function fish_init() {
-	local format
+        local format
 
-	case "$img" in
-	*.raw)	format="raw" ;;
-	*)	format="qcow2";;
-	esac
+        case "$img" in
+        *.raw)	format="raw" ;;
+        *)	format="qcow2";;
+        esac
 
-	msg "creating and adding disk image"
-	fish disk-create $img $format 256M
-	fish add $img
-	fish run
+        msg "creating and adding disk image"
+        fish disk-create $img $format 256M
+        fish add $img
+        fish run
 }
 
 function fish_fini() {
-	fish umount-all
+        fish umount-all
 }
 
 ######################################################################
 # sanity checks
 
 if test ! -f "$iso"; then
-	echo "ERROR: iso not found: $iso"
-	exit 1
+        echo "ERROR: iso not found: $iso"
+        exit 1
 fi
 if test ! -f "$cfg"; then
-	echo "ERROR: cfg not found: $cfg"
-	exit 1
+        echo "ERROR: cfg not found: $cfg"
+        exit 1
 fi
 if test -f "$img"; then
-	if test "$allow_override" = "yes"; then
-		rm -f "$img"
-	else
-		echo "ERROR: image exists: $img"
-		exit 1
-	fi
+        if test "$allow_override" = "yes"; then
+                rm -f "$img"
+        else
+                echo "ERROR: image exists: $img"
+                exit 1
+        fi
 fi
 
 ######################################################################
@@ -122,8 +122,8 @@ EOF
 export LIBGUESTFS_BACKEND=direct
 eval $(guestfish --listen)
 if test "$GUESTFISH_PID" = ""; then
-	echo "ERROR: starting guestfish failed"
-	exit 1
+        echo "ERROR: starting guestfish failed"
+        exit 1
 fi
 
 fish_init
@@ -148,15 +148,15 @@ fish copy-in $WORK/EFI/BOOT                    /ESP/EFI
 fish copy-in $WORK/EFI/CLOVER/CLOVERX64.efi    /ESP/EFI/CLOVER
 fish copy-in $WORK/EFI/CLOVER/drivers64UEFI    /ESP/EFI/CLOVER
 fish copy-in $WORK/EFI/CLOVER/drivers-Off/drivers64UEFI/AptioMemoryFix-64.efi \
-					       /ESP/EFI/CLOVER/drivers64UEFI
+                                               /ESP/EFI/CLOVER/drivers64UEFI
 fish copy-in $WORK/EFI/CLOVER/drivers-Off/drivers64UEFI/PartitionDxe-64.efi \
-					       /ESP/EFI/CLOVER/drivers64UEFI
+                                               /ESP/EFI/CLOVER/drivers64UEFI
 fish copy-in $WORK/EFI/CLOVER/drivers-Off/drivers64UEFI/ApfsDriverLoader-64.efi \
-					       /ESP/EFI/CLOVER/drivers64UEFI
-fish copy-in $WORK/EFI/CLOVER/drivers-Off/drivers64UEFI/AptioInputFix-64.efi \
-					       /ESP/EFI/CLOVER/drivers64UEFI
-fish copy-in $WORK/EFI/CLOVER/drivers-Off/drivers64UEFI/HashServiceFix-64.efi \
-					       /ESP/EFI/CLOVER/drivers64UEFI
+                                               /ESP/EFI/CLOVER/drivers64UEFI
+# fish copy-in $WORK/EFI/CLOVER/drivers-Off/drivers64UEFI/AptioInputFix-64.efi \
+#                                              /ESP/EFI/CLOVER/drivers64UEFI
+#fish copy-in $WORK/EFI/CLOVER/drivers-Off/drivers64UEFI/HashServiceFix-64.efi \
+#                                               /ESP/EFI/CLOVER/drivers64UEFI
 fish copy-in $WORK/EFI/CLOVER/kexts            /ESP/EFI/CLOVER
 fish copy-in $WORK/EFI/CLOVER/themes            /ESP/EFI/CLOVER
 fish copy-in $WORK/EFI/CLOVER/tools            /ESP/EFI/CLOVER
